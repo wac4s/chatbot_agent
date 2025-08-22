@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gemini Chatbot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <span class="logo">✦</span>
+        <h1>Gemini Chat</h1>
+      </div>
+      <button id="resetBtn" class="btn secondary" title="Clear this conversation">Reset</button>
+    </header>
+
+    <main id="chat" class="chat">
+      <!-- messages injected here -->
+      <div class="msg ai">
+        <div class="bubble">
+          Hi! I’m your Gemini-powered assistant. How can I help you today?
+        </div>
+      </div>
+    </main>
+
+    <form id="composer" class="composer">
+      <input id="messageInput" type="text" placeholder="Type your message…" autocomplete="off" />
+      <button class="btn primary" type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    const chatEl = document.getElementById("chat");
+    const formEl = document.getElementById("composer");
+    const inputEl = document.getElementById("messageInput");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function addMessage(role, text) {
+      const wrap = document.createElement("div");
+      wrap.className = "msg " + (role === "user" ? "user" : "ai");
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+      wrap.appendChild(bubble);
+      chatEl.appendChild(wrap);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    async function sendMessage(text) {
+      addMessage("user", text);
+
+      // optimistic "typing" indicator
+      const typing = document.createElement("div");
+      typing.className = "msg ai";
+      typing.innerHTML = '<div class="bubble typing"><span></span><span></span><span></span></div>';
+      chatEl.appendChild(typing);
+      chatEl.scrollTop = chatEl.scrollHeight;
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        typing.remove();
+        if (!res.ok) throw new Error(data.error || "Request failed");
+        addMessage("ai", data.response);
+      } catch (err) {
+        typing.remove();
+        addMessage("ai", "⚠️ " + err.message);
+      }
+    }
+
+    formEl.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = inputEl.value.trim();
+      if (!text) return;
+      inputEl.value = "";
+      sendMessage(text);
+    });
+
+    resetBtn.addEventListener("click", async () => {
+      try {
+        await fetch("/reset", { method: "POST" });
+        chatEl.innerHTML = `
+          <div class="msg ai">
+            <div class="bubble">
+              Conversation cleared. How can I help you now?
+            </div>
+          </div>`;
+      } catch {
+        // ignore
+      }
+    });
+  </script>
+</body>
+</html>
