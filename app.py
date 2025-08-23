@@ -26,6 +26,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # --- Memory store per user-session (in-memory). For production, swap for Redis. ---
 _session_memories = {}
+# testing
 
 def get_conversation(session_id: str) -> ConversationChain:
     """Return (and lazily create) a ConversationChain bound to a session's buffer memory."""
