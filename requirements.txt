@@ -5,5 +5,5 @@ langchain-google-genai
 google-generativeai
 werkzeug
 gunicorn
-
+openai
 
