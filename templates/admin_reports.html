@@ -1,0 +1,31 @@
+# admin tools - Delete Content & Ban Users
+<ul>
+{% for r in reports %}
+    <li>
+        <b>{{ r.type.capitalize() }} ID {{ r.content_id }}</b> |
+        Reported by: {{ r.reporter.username }} |
+        Reason: {{ r.reason }}
+
+        {% if r.type == "video" %}
+            <form action="/admin/delete/video/{{ r.content_id }}" method="post" style="display:inline;">
+                <button style="color:red;">Delete Video</button>
+            </form>
+        {% elif r.type == "photo" %}
+            <form action="/admin/delete/photo/{{ r.content_id }}" method="post" style="display:inline;">
+                <button style="color:red;">Delete Photo</button>
+            </form>
+        {% elif r.type == "comment" %}
+            <form action="/admin/delete/comment/{{ r.content_id }}" method="post" style="display:inline;">
+                <button style="color:red;">Delete Comment</button>
+            </form>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>
+
+<hr>
+<h3>Ban User by Username</h3>
+<form method="post" action="/admin/ban">
+    <input type="text" name="username" placeholder="Username" required>
+    <button>Ban</button>
+</form>

@@ -3,98 +3,104 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gemini Chatbot</title>
+  <title>Gemini Chat</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
 </head>
-<body>
-  <div class="app">
-    <header class="header">
-      <div class="brand">
-        <span class="logo">✦</span>
-        <h1>Gemini Chat</h1>
-      </div>
-      <button id="resetBtn" class="btn secondary" title="Clear this conversation">Reset</button>
-    </header>
+<body class="theme-light">
+  <div class="layout">
 
-    <main id="chat" class="chat">
-      <!-- messages injected here -->
-      <div class="msg ai">
-        <div class="bubble">
-          Hi! I’m your Gemini-powered assistant. How can I help you today?
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <span class="logo">✦</span>
+          <span class="brand-name">Gemini Chat</span>
         </div>
       </div>
+
+      <div class="characters">
+        <div class="characters-title">Characters</div>
+        <ul class="character-list">
+          {% for char in characters %}
+            <li class="character-item {% if selected_character == char[0] %}active{% endif %}">
+              <div class="avatar" aria-hidden="true">{{ char[1][:1] }}</div>
+              <div class="char-meta">
+                <div class="char-name">{{ char[1] }}</div>
+                {% if selected_character == char[0] %}
+                  <div class="char-status">Selected</div>
+                {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="link">Logout</a>
+      </div>
+    </aside>
+
+    <main class="chat-pane">
+      <header class="topbar">
+        <form class="character-switcher" method="POST">
+          <label for="character" class="lbl">Character</label>
+          <select id="character" name="character" class="sel" required>
+            {% for char in characters %}
+              <option value="{{ char[0] }}" {% if selected_character == char[0] %}selected{% endif %}>
+                {{ char[1] }}
+              </option>
+            {% endfor %}
+          </select>
+          <span class="hint">Pick who you’d like to chat with</span>
+        </form>
+      </header>
+
+      <section id="chat" class="chat-scroll">
+        {% if conversation and conversation|length > 0 %}
+          {% for msg in conversation %}
+            <div class="msg-row {{ 'right' if msg['role'] == 'user' else 'left' }}">
+              <div class="msg-bubble">
+                <div class="msg-text">{{ msg['message'] }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-title">Welcome! 🌼</div>
+            <div class="empty-sub">Choose a character and say hello to start a bright new conversation.</div>
+          </div>
+        {% endif %}
+      </section>
+
+      <footer class="composer">
+        <form method="POST" class="composer-form" autocomplete="off">
+          <input type="hidden" name="character" value="{{ selected_character or (characters[0][0] if characters else '') }}">
+          <input id="messageInput" name="message" class="composer-input" type="text"
+                 placeholder="Share your thoughts…" value="{{ user_message or '' }}" required />
+          <button class="btn primary" type="submit">Send</button>
+        </form>
+        <div class="composer-tip">Enter to send • Shift+Enter for a new line</div>
+      </footer>
     </main>
 
-    <form id="composer" class="composer">
-      <input id="messageInput" type="text" placeholder="Type your message…" autocomplete="off" />
-      <button class="btn primary" type="submit">Send</button>
-    </form>
   </div>
 
   <script>
-    const chatEl = document.getElementById("chat");
-    const formEl = document.getElementById("composer");
-    const inputEl = document.getElementById("messageInput");
-    const resetBtn = document.getElementById("resetBtn");
+    // Auto-scroll chat to the bottom on load
+    const chat = document.getElementById("chat");
+    if (chat) chat.scrollTop = chat.scrollHeight;
 
-    function addMessage(role, text) {
-      const wrap = document.createElement("div");
-      wrap.className = "msg " + (role === "user" ? "user" : "ai");
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      bubble.textContent = text;
-      wrap.appendChild(bubble);
-      chatEl.appendChild(wrap);
-      chatEl.scrollTop = chatEl.scrollHeight;
+    // Enter to submit, Shift+Enter for newline
+    const input = document.getElementById("messageInput");
+    if (input) {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          e.target.form?.submit();
+        }
+      });
     }
-
-    async function sendMessage(text) {
-      addMessage("user", text);
-
-      // optimistic "typing" indicator
-      const typing = document.createElement("div");
-      typing.className = "msg ai";
-      typing.innerHTML = '<div class="bubble typing"><span></span><span></span><span></span></div>';
-      chatEl.appendChild(typing);
-      chatEl.scrollTop = chatEl.scrollHeight;
-
-      try {
-        const res = await fetch("/chat", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ message: text })
-        });
-        const data = await res.json();
-        typing.remove();
-        if (!res.ok) throw new Error(data.error || "Request failed");
-        addMessage("ai", data.response);
-      } catch (err) {
-        typing.remove();
-        addMessage("ai", "⚠️ " + err.message);
-      }
-    }
-
-    formEl.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const text = inputEl.value.trim();
-      if (!text) return;
-      inputEl.value = "";
-      sendMessage(text);
-    });
-
-    resetBtn.addEventListener("click", async () => {
-      try {
-        await fetch("/reset", { method: "POST" });
-        chatEl.innerHTML = `
-          <div class="msg ai">
-            <div class="bubble">
-              Conversation cleared. How can I help you now?
-            </div>
-          </div>`;
-      } catch {
-        // ignore
-      }
-    });
   </script>
 </body>
 </html>
+
+

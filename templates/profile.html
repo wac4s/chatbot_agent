@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+  {% set displayed = user or user_profile or current_user %}
+  {% if not displayed %}
+    <h2>User Profile</h2>
+    <p>Profile data not available.</p>
+  {% else %}
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div>
+        {% if displayed.avatar %}
+          <img src="/static/uploads/{{ displayed.avatar }}" alt="Avatar" width="96" height="96" style="border-radius:50%; object-fit:cover;">
+        {% else %}
+          <img src="/static/default-profile.png" alt="Avatar" width="96" height="96" style="border-radius:50%; object-fit:cover;">
+        {% endif %}
+      </div>
+      <div>
+        <h2 style="margin:0;">{{ displayed.username or displayed.email or "User" }}</h2>
+        {% if displayed.bio %}
+          <p style="margin:4px 0 0 0; white-space:pre-wrap;">{{ displayed.bio }}</p>
+        {% endif %}
+        <div style="margin-top:8px; color: #666;">
+          {% set follower_count = followers if followers is defined else (displayed.followers | length if displayed.followers is not none else 0) %}
+          {% set following_count = following if following is defined else (displayed.following | length if displayed.following is not none else 0) %}
+          <span><strong>{{ follower_count }}</strong> Followers</span>
+          <span style="margin-left:12px;"><strong>{{ following_count }}</strong> Following</span>
+          {% if total_likes is defined %}
+            <span style="margin-left:12px;"><strong>{{ total_likes }}</strong> Likes</span>
+          {% endif %}
+        </div>
+
+        {% if is_following is defined and current_user %}
+          {% if current_user.id != displayed.id %}
+            <div style="margin-top:10px;">
+              {% if is_following %}
+                <form action="/unfollow/{{ displayed.id }}" method="post" style="display:inline;">
+                  <button type="submit">Unfollow</button>
+                </form>
+              {% else %}
+                <form action="/follow/{{ displayed.id }}" method="post" style="display:inline;">
+                  <button type="submit">Follow</button>
+                </form>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    {% if current_user and current_user.id == displayed.id and request.url.path.endswith("/profile/edit") %}
+      <hr>
+      <h3>Edit Profile</h3>
+      <form action="/profile/edit" method="post" enctype="multipart/form-data" style="max-width:520px;">
+        <div style="margin-bottom:10px;">
+          <label for="bio">Bio</label><br>
+          <textarea id="bio" name="bio" rows="4" style="width:100%;">{{ displayed.bio or "" }}</textarea>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label for="avatar">Avatar</label><br>
+          <input id="avatar" name="avatar" type="file" accept="image/*">
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
+    {% endif %}
+
+    {% set media_list = media if media is defined else None %}
+    {% if media_list %}
+      <hr>
+      <h3>Posts</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px;">
+        {% for m in media_list %}
+          <div style="border:1px solid #eee; padding:8px; border-radius:6px;">
+            <a href="/media/{{ m.id }}" style="text-decoration:none; color:inherit;">
+              {% if m.media_type == 'photo' %}
+                <img src="{{ m.url }}" alt="Photo" style="width:100%; height:180px; object-fit:cover; border-radius:4px;">
+              {% else %}
+                <video src="{{ m.url }}" controls style="width:100%; height:180px; object-fit:cover; border-radius:4px;"></video>
+              {% endif %}
+              {% if m.caption %}
+                <p style="margin:6px 0 0 0; font-size:0.95em;">{{ m.caption }}</p>
+              {% endif %}
+              <p style="margin:4px 0 0 0; color:#666;">❤️ {{ m.likes | length }} likes</p>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+{% endblock %}

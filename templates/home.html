@@ -1,0 +1,15 @@
+
+# public home page
+<!-- app/templates/home.html -->
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<h1>Welcome to TikTok Clone</h1>
+<p>A simple video-sharing social app built with FastAPI.</p>
+
+<p>
+    <a href="/register">Register</a> |
+    <a href="/login">Login</a>
+</p>
+{% endblock %}

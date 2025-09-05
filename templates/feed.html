@@ -1,0 +1,142 @@
+# User Feed + Upload Video System
+<!-- app/templates/feed.html -->
+{% extends "base.html" %}
+{% block title %}Your Feed{% endblock %}
+
+{% block content %}
+<h2>Video Feed</h2>
+
+{% for video in videos %}
+    <div style="margin-bottom: 2rem;">
+        <strong><a href="/user/{{ video.user.id }}">{{ video.user.username }}</a></strong><br>
+        <video width="480" controls>
+            <source src="/static/uploads/{{ video.filename }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+{% endfor %}
+
+{% if not videos %}
+    <p>No videos yet. Follow someone or upload your own!</p>
+{% endif %}
+{% endblock %}
+
+# add comment
+{% for comment in video.comments %}
+    <div style="margin-left:1rem;">
+        <small><b>{{ comment.user.username }}</b>: {{ comment.text }}</small>
+    </div>
+{% endfor %}
+
+<form action="/comment/video/{{ video.id }}" method="post">
+    <input type="text" name="text" placeholder="Add comment..." required>
+    <button type="submit">💬</button>
+</form>
+
+
+# update Pagination for Feed
+{% extends "base.html" %}
+{% block title %}Your Feed{% endblock %}
+
+{% block content %}
+<h2>Video Feed</h2>
+
+{% for video in videos %}
+    <div style="margin-bottom: 2rem;">
+        <strong><a href="/user/{{ video.user.id }}">{{ video.user.username }}</a></strong><br>
+        <video width="480" controls>
+            <source src="/static/uploads/{{ video.filename }}" type="video/mp4">
+        </video>
+    </div>
+{% endfor %}
+
+{% if not videos %}
+    <p>No videos yet. Follow someone or upload your own!</p>
+{% endif %}
+
+<div style="margin-top: 2rem;">
+    {% if prev_page %}
+        <a href="/feed?page={{ prev_page }}">Previous</a>
+    {% endif %}
+    {% if next_page %}
+        <a href="/feed?page={{ next_page }}" style="margin-left: 1rem;">Next</a>
+    {% endif %}
+</div>
+{% endblock %}
+
+# add comment
+{% for comment in video.comments %}
+    <div style="margin-left:1rem;">
+        <small><b>{{ comment.user.username }}</b>: {{ comment.text }}</small>
+    </div>
+{% endfor %}
+
+<form action="/comment/video/{{ video.id }}" method="post">
+    <input type="text" name="text" placeholder="Add comment..." required>
+    <button type="submit">💬</button>
+</form>
+
+
+# Update feed.html to Show Captions
+{% for video in videos %}
+    <div style="margin-bottom: 2rem;">
+        <strong><a href="/user/{{ video.user.id }}">{{ video.user.username }}</a></strong><br>
+        <video width="480" controls>
+            <source src="/static/uploads/{{ video.filename }}" type="video/mp4">
+        </video><br>
+        {% if video.caption %}
+            {% if video.caption %}
+    <p>
+        {% for word in video.caption.split() %}
+            {% if word.startswith('#') %}
+                <a href="/hashtag/{{ word[1:] }}">{{ word }}</a>
+            {% else %}
+                {{ word }}
+            {% endif %}
+        {% endfor %}
+    </p>
+{% endif %}
+
+        {% endif %}
+    </div>
+{% endfor %}
+
+# for the photo block - commenting
+{% for comment in photo.comments %}
+    <div style="margin-left:1rem;">
+        <small><b>{{ comment.user.username }}</b>: {{ comment.text }}</small>
+    </div>
+{% endfor %}
+
+<form action="/comment/photo/{{ photo.id }}" method="post">
+    <input type="text" name="text" placeholder="Add comment..." required>
+    <button type="submit">💬</button>
+</form>
+
+# added for photos:
+{% if photo.caption %}
+    <p>
+        {% for word in photo.caption.split() %}
+            {% if word.startswith('#') %}
+                <a href="/hashtag/{{ word[1:] }}">{{ word }}</a>
+            {% else %}
+                {{ word }}
+            {% endif %}
+        {% endfor %}
+    </p>
+{% endif %}
+
+# Add Report Forms for moderation - photo
+<form action="/report" method="post" style="display:inline;">
+    <input type="hidden" name="type" value="photo">
+    <input type="hidden" name="content_id" value="{{ photo.id }}">
+    <button type="submit" style="color:red; font-size:0.8rem;">🚩</button>
+</form>
+
+# Add Report Forms for moderation - video
+<form action="/report" method="post" style="display:inline;">
+    <input type="hidden" name="type" value="video">
+    <input type="hidden" name="content_id" value="{{ video.id }}">
+    <button type="submit" style="color:red; font-size:0.8rem;">🚩</button>
+</form>
+

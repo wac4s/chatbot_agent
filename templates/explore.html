@@ -1,0 +1,53 @@
+# build the Explore Page
+
+{% extends "base.html" %}
+{% block title %}Explore{% endblock %}
+
+{% block content %}
+  <h2>Explore</h2>
+
+  {% if hashtags is defined and hashtags %}
+    <h3>🔥 Trending Hashtags</h3>
+    <ul>
+      {% for tag, count in hashtags %}
+        <li>
+          <a href="/hashtag/{{ tag.name }}">#{{ tag.name }}</a>
+          <span style="color:gray;">({{ count }} uses)</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if top_users is defined and top_users %}
+    <h3>🌟 Top Creators</h3>
+    <ul>
+      {% for user in top_users %}
+        <li>
+          {% if user.avatar %}
+            <img src="/static/uploads/{{ user.avatar }}" width="30" style="border-radius:50%; vertical-align:middle;">
+          {% endif %}
+          <a href="/user/{{ user.id }}">{{ user.username }}</a>
+          <span style="color:gray;">({{ user.followers|length }} followers)</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h3>Explore Trending Posts</h3>
+  <div class="grid">
+    {% for media in media_list %}
+      <div class="card">
+        <a href="/media/{{ media.id }}">
+          {% if media.media_type == 'photo' %}
+            <img src="{{ media.url }}" alt="Photo" width="200" />
+          {% else %}
+            <video src="{{ media.url }}" controls width="200"></video>
+          {% endif %}
+        </a>
+        {% if media.caption %}<p>{{ media.caption }}</p>{% endif %}
+        <p>❤️ {{ media.likes|length }} likes</p>
+        <p>👤 <a href="/user/{{ media.user_id }}">{{ media.user.username }}</a></p>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

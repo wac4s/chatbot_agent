@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+  <h2>Edit Profile</h2>
+  <form method="post" enctype="multipart/form-data">
+    <label>Bio:</label><br>
+    <textarea name="bio" rows="4" cols="40">{{ current_user.bio if current_user is defined and current_user else (user.bio if user is defined else "") }}</textarea><br><br>
+
+    <label>Avatar:</label><br>
+    {% set shown = (current_user if current_user is defined and current_user else (user if user is defined else None)) %}
+    {% if shown and shown.avatar %}
+      <img src="/static/uploads/{{ shown.avatar }}" width="100" style="border-radius:50%; object-fit:cover;"><br>
+    {% else %}
+      <img src="/static/default-profile.png" width="100" style="border-radius:50%; object-fit:cover;"><br>
+    {% endif %}
+    <input type="file" name="avatar" accept="image/*"><br><br>
+
+    <button type="submit">Save</button>
+  </form>
+{% endblock %}

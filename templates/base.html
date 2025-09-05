@@ -1,0 +1,129 @@
+<!-- app/templates/base.html -->
+<!DOCTYPE html>
+<html>
+
+# Add viewport and basic CSS:
+<head>
+    <title>{% block title %}App{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+            background: #f8f8f8;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        video, img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        form {
+            margin-top: 0.5rem;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.5rem;
+            box-sizing: border-box;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #333;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+
+
+        <div class="nav">
+    {% if request.cookies.session_token %}
+        <a href="/feed">Feed</a>
+        <a href="/upload">Upload</a>
+        <a href="/logout">Logout</a>
+    {% else %}
+        <a href="/">Home</a>
+        <a href="/register">Register</a>
+        <a href="/login">Login</a>
+    {% endif %}
+</div>
+
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/feed">Feed</a>
+        <a href="/upload">Upload</a>
+        <a href="/logout">Logout</a>
+    </div>
+
+    {% block content %}{% endblock %}
+</body>
+</html>
+
+# Add a Search Bar in base.html (visible on all pages)
+<div class="nav">
+    {% if request.cookies.session_token %}
+        <a href="/feed">Feed</a>
+        <a href="/upload">Upload</a>
+        <a href="/logout">Logout</a>
+
+        <form action="/search" method="get" style="display:inline; margin-left: 1rem;">
+            <input type="text" name="q" placeholder="Search..." style="padding:2px;">
+        </form>
+    {% else %}
+        <a href="/">Home</a>
+        <a href="/register">Register</a>
+        <a href="/login">Login</a>
+    {% endif %}
+</div>
+
+# add nav link to explore page
+<a href="/feed">Feed</a>
+<a href="/upload">Upload</a>
+<a href="/explore">Explore</a>  <!-- 👈 Add this -->
+<a href="/logout">Logout</a>
+
+# Add Link to Notifications in base.html
+<a href="/notifications">🔔</a>
+
+# Add Mobile-Friendly Styling
+
+
+# Add Link to Manifest + Service Worker
+<link rel="manifest" href="/static/manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/sw.js');
+  }
+</script>

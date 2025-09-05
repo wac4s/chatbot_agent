@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<h2>Notifications</h2>
+<ul>
+  {% for note in notifications %}
+    <li {% if not note.read %}style="font-weight:bold"{% endif %}>
+      {{ note.message }} <small>({{ note.timestamp.strftime('%Y-%m-%d %H:%M') }})</small>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
+
+# notification
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+  <h2>Notifications</h2>
+  {% for n in notifications %}
+    <div class="notif">
+      <p>{{ n.message }}</p>
+      <small>From: {{ n.sender.username }} | {{ n.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+      <hr>
+    </div>
+  {% endfor %}
+{% endblock %}

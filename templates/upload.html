@@ -1,0 +1,26 @@
+# User Feed + Upload Video System
+<!-- app/templates/upload.html -->
+{% extends "base.html" %}
+{% block title %}Upload Video{% endblock %}
+
+{% block content %}
+<h2>Upload a Video</h2>
+<form action="/upload" enctype="multipart/form-data" method="post">
+    <label>Select video file:</label><br>
+    <input type="file" name="file" accept="video/*" required><br><br>
+    <button type="submit">Upload</button>
+</form>
+{% endblock %}
+
+# so users can write a caption:
+<form action="/upload" enctype="multipart/form-data" method="post">
+    <label>Select video file:</label><br>
+    <input type="file" name="file" accept="video/*" required><br><br>
+
+    <label>Caption:</label><br>
+    <textarea name="caption" rows="2" cols="40" maxlength="200"></textarea><br><br>
+
+    <button type="submit">Upload</button>
+</form>
+
+# Uploading Photo Posts (Fix)

@@ -7,3 +7,11 @@ werkzeug
 gunicorn
 openai
 
+fastapi
+uvicorn
+sqlalchemy
+jinja2
+python-multipart
+
+bcrypt
+itsdangerous
